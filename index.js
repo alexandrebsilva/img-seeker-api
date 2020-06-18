@@ -1,7 +1,7 @@
 const express = require('express')
 const http = require('http')
 const socketIO = require('socket.io')
-const { getImages, saveImage } = require('./src/services/imgService')
+const ImgService = require('./src/services/ImgService')
 
 const mongoose = require('mongoose');
 const ImageRepository = require('./src/repositories/imageRepository')
@@ -26,21 +26,28 @@ io.on('connection', socket => {
     socket.on('urlEventSubmit', (url) => {
         console.log(`URL received: ${url}`)
         io.sockets.emit('urlEventSubmit', { loading: true })
-        getImages(url).then((imgsData) => {
-            console.table(imgsData)
-            //const data = getUnique(imgsData, imgsData.url)
-            imgsData.map((img) => {
-                console.log({ contentType: img.contentType, originalUrl: img.url, path: 'teste' })
-                ImageRepository.saveImage({ contentType: img.contentType, originalUrl: img.url, path: '' })
+        /* 
+        const data = { imgDetail: imgsData, url }
+                    saveImages(data)
+                        .then((resp) => {
+                            console.log(resp)
+                        })
+                        .catch((e) => { console.log(e) })*/
+
+        ImgService.getImages(url)
+            .then((imgsData) => {
+                io.sockets.emit('urlEventSubmit', { data: imgsData, loading: false })
             })
-
-
-
-            io.sockets.emit('urlEventSubmit', { data: imgsData, loading: false })
-        }).catch((e) => {
-            console.log('Algo deu errado')
-            console.log(e)
-        })
+            .catch((e) => {
+                console.log(e)
+            })
+        //getImages(url).then((imgsData) => {
+        //    //const data = getUnique(imgsData, imgsData.url)
+        //    io.sockets.emit('urlEventSubmit', { data: imgsData, loading: false })
+        //}).catch((e) => {
+        //    console.log('Algo deu errado')
+        //    console.log(e)
+        //})
 
     })
 

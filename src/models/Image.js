@@ -5,11 +5,15 @@ var Schema = mongoose.Schema;
 const ImageSchema = new Schema({
     contentType: {
         type: String,
-        required: true
+        //required: true
     },
-    originalUrl: {
+    url: {
         type: String,
-        required: true
+        //required: true
+    },
+    domain: {
+        type: String,
+        //required: true
     },
     path: {
         type: String,

@@ -9,7 +9,6 @@ module.exports = {
     async findImageById(_id) {
         return Image.find({ _id })
     },
-
     async saveImage(image) {
         const res = await Image.create(image)
         return res

@@ -29,7 +29,7 @@ io.on('connection', socket => {
     }
     listImages()
 
-    setInterval(listImages, 30000)
+    //setInterval(listImages, 30000)
 
 
     const requestImagesFromUrl = async (url) => {

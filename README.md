@@ -9,6 +9,7 @@ Usar npm para instalar as dependencias
 ```bash
 npm install
 ```
+Rodar junto com o projeto de FRONT - https://github.com/alexandrebsilva/img-seeker-front
 
 ## Uso
 

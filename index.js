@@ -1,15 +1,13 @@
 const express = require('express')
 const http = require('http')
 const socketIO = require('socket.io')
-const ImgService = require('./src/services/ImgService')
+const ImageService = require('./src/services/ImageService')
+const dotenv = require('dotenv')
+const result = dotenv.config()
 
 const mongoose = require('mongoose');
-const ImageRepository = require('./src/repositories/imageRepository')
-const getUnique = require('./src/utils/removeDuplicate')
 
-
-mongoose.connect('mongodb+srv://imgSeeker:imgSeeker@imgseekercluster-iytdz.mongodb.net/imgsDB?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
-
+mongoose.connect(`mongodb+srv://${process.env.MONGO_DB_USER}:${process.env.MONGO_DB_PASSWORD}@imgseekercluster-iytdz.mongodb.net/imgsDB?retryWrites=true&w=majority`, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const PORT = 4000
 
@@ -20,37 +18,36 @@ const server = http.createServer(app)
 //create the socket using the service instance
 const io = socketIO(server)
 
+//when user connects
 io.on('connection', socket => {
     console.log('New user connected.')
 
+    const listImages = async () => {
+        console.log('consulting images')
+        const images = await ImageService.listAllImages()
+        io.sockets.emit('listImages', { images, loading: false })
+    }
+    listImages()
+
+    setInterval(listImages, 30000)
+
+
+    const requestImagesFromUrl = async (url) => {
+        const imgsData = await ImageService.getImages(url)
+        if (imgsData === []) {
+            io.sockets.emit('urlEventSubmit', { loading: false })
+        } else {
+            io.sockets.emit('urlEventSubmit', { data: imgsData, loading: false })
+        }
+    }
+    //when user interacts with the socket/event
     socket.on('urlEventSubmit', (url) => {
         console.log(`URL received: ${url}`)
         io.sockets.emit('urlEventSubmit', { loading: true })
-        /* 
-        const data = { imgDetail: imgsData, url }
-                    saveImages(data)
-                        .then((resp) => {
-                            console.log(resp)
-                        })
-                        .catch((e) => { console.log(e) })*/
-
-        ImgService.getImages(url)
-            .then((imgsData) => {
-                io.sockets.emit('urlEventSubmit', { data: imgsData, loading: false })
-            })
-            .catch((e) => {
-                console.log(e)
-            })
-        //getImages(url).then((imgsData) => {
-        //    //const data = getUnique(imgsData, imgsData.url)
-        //    io.sockets.emit('urlEventSubmit', { data: imgsData, loading: false })
-        //}).catch((e) => {
-        //    console.log('Algo deu errado')
-        //    console.log(e)
-        //})
+        requestImagesFromUrl(url)
 
     })
-
+    //when user disconnects
     socket.on('disconnect', () => {
         console.log('User disconnected')
     })

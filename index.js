@@ -22,13 +22,13 @@ const io = socketIO(server)
 io.on('connection', socket => {
     console.log('New user connected.')
 
+    //this point can be improved for a better performance and experience
     const listImages = async () => {
         console.log('consulting images')
         const images = await ImageService.listAllImages()
         io.sockets.emit('listImages', { images, loading: false })
     }
     listImages()
-
 
     const requestImagesFromUrl = async (url) => {
         const imgsData = await ImageService.getImages(url)
@@ -38,13 +38,15 @@ io.on('connection', socket => {
             io.sockets.emit('urlEventSubmit', { data: imgsData, loading: false })
         }
     }
+
     //when user interacts with the socket/event
     socket.on('urlEventSubmit', (url) => {
         console.log(`URL received: ${url}`)
         io.sockets.emit('urlEventSubmit', { loading: true })
-        requestImagesFromUrl(url)
 
+        requestImagesFromUrl(url)
     })
+
     //when user disconnects
     socket.on('disconnect', () => {
         console.log('User disconnected')

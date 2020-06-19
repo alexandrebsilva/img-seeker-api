@@ -16,7 +16,7 @@ class ImageRepository {
             {
                 $group: {
                     _id: '$domain',
-                    images: { $push: { url: '$url', path: '$path' } }
+                    images: { $push: { url: '$url', path: '$path', contentType: '$contentType' } }
                 }
             },
             {

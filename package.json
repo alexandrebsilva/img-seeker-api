@@ -15,7 +15,7 @@
     "express": "^4.17.1",
     "get-image-urls": "^1.0.5",
     "mongoose": "^5.9.19",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.4.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"
